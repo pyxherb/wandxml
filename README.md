@@ -1,3 +1,3 @@
-# PEFF - Portable Exception-Free Foundations
+# WandXML
 
-PEFF is a exception-free common library for C++ projects.
+WandXML is an experimental XML manipulating library that is exception-free.
