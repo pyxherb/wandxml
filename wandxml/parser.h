@@ -6,6 +6,18 @@
 
 namespace wandxml {
 	namespace parser {
+		enum class XMLRegularElementParseState {
+			Initial = 0,
+			Contents,
+			RestorePreviousChildParse,
+			ClosingTagDetect
+		};
+
+		struct XMLRegularElementParseInfo {
+			XMLRegularElementParseState parseState;
+			std::unique_ptr<XMLRegularNode, XMLNodeDeleter> nodeOut;
+		};
+
 		struct XMLNodeParseState {
 			peff::RcObjectPtr<peff::Alloc> allocator;
 			std::unique_ptr<XMLDocumentNode, XMLNodeDeleter> xmlNodeOut;
@@ -13,6 +25,12 @@ namespace wandxml {
 			size_t baseOff = 0;
 			size_t cur;
 			size_t length;
+			peff::List<XMLRegularElementParseInfo> regularElementParseInfo;
+			std::unique_ptr<XMLRegularNode, XMLNodeDeleter> regularElementNodeOut;
+			size_t regularElementIdxLastValidChar;
+
+			WANDXML_FORCEINLINE XMLNodeParseState(peff::Alloc *alloc) : regularElementParseInfo(alloc) {
+			}
 		};
 
 		WANDXML_API void eatPrecedingWhitespaces(XMLNodeParseState *parseState);
@@ -31,7 +49,7 @@ namespace wandxml {
 
 		WANDXML_API InternalExceptionPointer parseXMLDeclaration(XMLNodeParseState *parseState, XMLDeclarationNode &declarationOut);
 
-		WANDXML_API InternalExceptionPointer parseXMLRegularElement(XMLNodeParseState *parseState, XMLRegularNode &nodeOut, bool isTopLevel = true);
+		WANDXML_API InternalExceptionPointer parseXMLRegularElement(XMLNodeParseState *parseState, bool isTopLevel = true);
 
 		WANDXML_API InternalExceptionPointer parseXMLElement(XMLNodeParseState *parseState, std::unique_ptr<XMLNode, XMLNodeDeleter> &nodeOut);
 
