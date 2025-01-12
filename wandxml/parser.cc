@@ -358,84 +358,88 @@ WANDXML_API InternalExceptionPointer parser::parseXMLRegularElement(XMLNodeParse
 		}
 	}
 
-	size_t idxLastValidChar = ++parseState->cur;
-
 	{
-		RegularElementParseState elementParseState = RegularElementParseState::Contents;
-		for (;;) {
-			if (parseState->cur >= parseState->length) {
-				if (!isTopLevel) {
-					return withOutOfMemoryErrorIfAllocFailed(SyntaxError::alloc(parseState->allocator.get(), parseState->cur, "Unexpected end of file"));
-				}
-				goto end;
-			}
+		size_t idxLastValidChar = ++parseState->cur;
 
-			c = parseState->src[parseState->cur];
-
-			switch (elementParseState) {
-				case RegularElementParseState::Contents:
-					switch (c) {
-						case '<':
-							elementParseState = RegularElementParseState::ClosingTagDetect;
-							break;
-						default:;
+		{
+			RegularElementParseState elementParseState = RegularElementParseState::Contents;
+			for (;;) {
+				if (parseState->cur >= parseState->length) {
+					if (!isTopLevel) {
+						return withOutOfMemoryErrorIfAllocFailed(SyntaxError::alloc(parseState->allocator.get(), parseState->cur, "Unexpected end of file"));
 					}
-					break;
-				case RegularElementParseState::ClosingTagDetect: {
-					switch (c) {
-						case '/': {
-							{
-								size_t textLength = parseState->cur - 1 - idxLastValidChar;
-								if (textLength) {
-									peff::String text;
-									text.resize(textLength);
-									memcpy(text.data(), parseState->src + idxLastValidChar, textLength);
-
-									// TODO: Push the text element.
-									std::unique_ptr<XMLTextNode, XMLNodeDeleter> textNode(XMLTextNode::alloc(parseState->allocator.get()));
-									if (!textNode)
-										return OutOfMemoryError::alloc();
-									textNode->value = std::move(text);
-									if (!nodeOut.children.pushBack(std::unique_ptr<XMLNode, XMLNodeDeleter>(textNode.release())))
-										return OutOfMemoryError::alloc();
-								}
-							}
-							++parseState->cur;
-							goto parseClosingTag;
-						}
-						default: {
-							{
-								size_t textLength = parseState->cur - 1 - idxLastValidChar;
-								if (textLength) {
-									peff::String text;
-									text.resize(textLength);
-									memcpy(text.data(), parseState->src + idxLastValidChar, textLength);
-
-									// TODO: Push the text element.
-									std::unique_ptr<XMLTextNode, XMLNodeDeleter> textNode(XMLTextNode::alloc(parseState->allocator.get()));
-									if (!textNode)
-										return OutOfMemoryError::alloc();
-									textNode->value = std::move(text);
-									if (!nodeOut.children.pushBack(std::unique_ptr<XMLNode, XMLNodeDeleter>(textNode.release())))
-										return OutOfMemoryError::alloc();
-								}
-							}
-							std::unique_ptr<XMLRegularNode, XMLNodeDeleter> childNodePtr(XMLRegularNode::alloc(parseState->allocator.get()));
-
-							WANDXML_RETURN_IF_EXCEPT(parseXMLRegularElement(parseState, *childNodePtr.get(), false));
-
-							if (!nodeOut.children.pushBack(std::unique_ptr<XMLNode, XMLNodeDeleter>(childNodePtr.release())))
-								return OutOfMemoryError::alloc();
-
-							elementParseState = RegularElementParseState::Contents;
-							break;
-						}
-					}
-					break;
+					goto end;
 				}
-			}
 
-			++parseState->cur;
+				c = parseState->src[parseState->cur];
+
+				switch (elementParseState) {
+					case RegularElementParseState::Contents:
+						switch (c) {
+							case '<':
+								elementParseState = RegularElementParseState::ClosingTagDetect;
+								break;
+							default:;
+						}
+						break;
+					case RegularElementParseState::ClosingTagDetect: {
+						switch (c) {
+							case '/': {
+								{
+									size_t textLength = parseState->cur - 1 - idxLastValidChar;
+									if (textLength) {
+										peff::String text;
+										text.resize(textLength);
+										memcpy(text.data(), parseState->src + idxLastValidChar, textLength);
+
+										// TODO: Push the text element.
+										std::unique_ptr<XMLTextNode, XMLNodeDeleter> textNode(XMLTextNode::alloc(parseState->allocator.get()));
+										if (!textNode)
+											return OutOfMemoryError::alloc();
+										textNode->value = std::move(text);
+										if (!nodeOut.children.pushBack(std::unique_ptr<XMLNode, XMLNodeDeleter>(textNode.release())))
+											return OutOfMemoryError::alloc();
+									}
+								}
+								++parseState->cur;
+								goto parseClosingTag;
+							}
+							default: {
+								{
+									size_t textLength = parseState->cur - 1 - idxLastValidChar;
+									if (textLength) {
+										peff::String text;
+										text.resize(textLength);
+										memcpy(text.data(), parseState->src + idxLastValidChar, textLength);
+
+										// TODO: Push the text element.
+										std::unique_ptr<XMLTextNode, XMLNodeDeleter> textNode(XMLTextNode::alloc(parseState->allocator.get()));
+										if (!textNode)
+											return OutOfMemoryError::alloc();
+										textNode->value = std::move(text);
+										if (!nodeOut.children.pushBack(std::unique_ptr<XMLNode, XMLNodeDeleter>(textNode.release())))
+											return OutOfMemoryError::alloc();
+									}
+								}
+								std::unique_ptr<XMLRegularNode, XMLNodeDeleter> childNodePtr(XMLRegularNode::alloc(parseState->allocator.get()));
+
+								WANDXML_RETURN_IF_EXCEPT(parseXMLRegularElement(parseState, *childNodePtr.get(), false));
+
+								if (!nodeOut.children.pushBack(std::unique_ptr<XMLNode, XMLNodeDeleter>(childNodePtr.release())))
+									return OutOfMemoryError::alloc();
+
+								elementParseState = RegularElementParseState::Contents;
+
+								idxLastValidChar = parseState->cur;
+								break;
+							}
+						}
+						break;
+					}
+				}
+
+				++parseState->cur;
+			}
 		}
 	}
 

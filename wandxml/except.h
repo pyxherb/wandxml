@@ -2,6 +2,7 @@
 #define _WANDXML_EXCEPT_H_
 
 #include "except_base.h"
+#include <new>
 
 namespace wandxml {
 	/// @brief The out of memory error, indicates that a memory allocation has failed.

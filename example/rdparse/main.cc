@@ -72,7 +72,7 @@ void dumpXMLNode(wandxml::XMLNode *node, size_t indentLevel = 0) {
 			for (size_t i = 0; i < indentLevel; ++i)
 				putchar(' ');
 
-			printf("%s\n", textNode->value.data());
+			printf("\"%s\"\n", textNode->value.data());
 			break;
 		}
 	}
