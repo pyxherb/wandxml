@@ -2,7 +2,7 @@
 #define _WANDXML_EXCEPT_BASE_H_
 
 #include "basedefs.h"
-#include <peff/base/allocator.h>
+#include <peff/base/alloc.h>
 
 namespace wandxml {
 	enum class ErrorKind {

@@ -30,7 +30,7 @@ WANDXML_API const char *SyntaxError::what() const {
 
 WANDXML_API void SyntaxError::dealloc() {
 	this->~SyntaxError();
-	allocator->release((void *)this);
+	allocator->release((void *)this, sizeof(SyntaxError), sizeof(std::max_align_t));
 }
 
 WANDXML_API SyntaxError *SyntaxError::alloc(peff::Alloc *allocator, size_t off, const char *message) noexcept {

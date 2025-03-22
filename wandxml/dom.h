@@ -7,18 +7,6 @@
 #include <peff/containers/dynarray.h>
 #include <optional>
 
-namespace peff {
-	inline bool copy(std::optional<peff::String> &dest, const std::optional<peff::String> &src){
-		peff::String copiedStr;
-
-		if (!::peff::copy(copiedStr, *src))
-			return false;
-
-		new (&dest) std::optional<peff::String>(std::move(copiedStr));
-		return true;
-	}
-}
-
 namespace wandxml {
 	enum class XMLNodeType {
 		Regular = 0,

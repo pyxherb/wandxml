@@ -1,6 +1,8 @@
 #ifndef _WANDXML_BASE_BASEDEFS_H_
 #define _WANDXML_BASE_BASEDEFS_H_
 
+#include <peff/base/basedefs.h>
+
 #if WANDXML_DYNAMIC_LINK
 	#if defined(_MSC_VER)
 		#define WANDXML_DLLEXPORT __declspec(dllexport)
@@ -14,15 +16,7 @@
 	#define WANDXML_DLLIMPORT
 #endif
 
-#if defined(_MSC_VER)
-	#define WANDXML_FORCEINLINE __forceinline
-#elif defined(__GNUC__) || defined(__clang__)
-	#ifndef NDEBUG
-		#define WANDXML_FORCEINLINE __attribute__((__always_inline__)) inline
-	#else
-		#define WANDXML_FORCEINLINE inline
-	#endif
-#endif
+#define WANDXML_FORCEINLINE PEFF_FORCEINLINE
 
 #if defined(_MSC_VER)
 	#define WANDXML_DECL_EXPLICIT_INSTANTIATED_CLASS(apiModifier, name, ...) \

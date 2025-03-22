@@ -30,10 +30,10 @@ struct StringParseEscapeStateData {
 };
 
 WANDXML_API InternalExceptionPointer parser::parseXMLString(XMLNodeParseState *parseState, peff::String &stringOut) {
-	peff::ScopeGuard clearStringGuard([&stringOut]() {
+	peff::ScopeGuard clearStringGuard([&stringOut]() noexcept {
 		stringOut.clear();
 	});
-	stringOut = {};
+	stringOut = peff::String(parseState->allocator.get());
 
 	if (parseState->cur >= parseState->length)
 		return withOutOfMemoryErrorIfAllocFailed(SyntaxError::alloc(parseState->allocator.get(), parseState->cur, "Unexpected end of file"));
@@ -217,7 +217,7 @@ WANDXML_API InternalExceptionPointer parser::parseXMLAttribute(XMLNodeParseState
 				++parseState->cur;
 				eatPrecedingWhitespaces(parseState);
 
-				valueOut = peff::String{};
+				valueOut = peff::String(parseState->allocator.get());
 
 				WANDXML_RETURN_IF_EXCEPT(parseXMLString(parseState, *valueOut));
 
@@ -272,7 +272,7 @@ WANDXML_API InternalExceptionPointer parser::parseXMLDeclaration(XMLNodeParseSta
 				++parseState->cur;
 				goto end;
 			default: {
-				peff::String name;
+				peff::String name(parseState->allocator.get());
 				std::optional<peff::String> value;
 
 				WANDXML_RETURN_IF_EXCEPT(parseXMLAttribute(parseState, name, value));
@@ -337,7 +337,7 @@ recurse:
 				eatPrecedingWhitespaces(parseState);
 
 				while ((c = parseState->src[parseState->cur] != '/') && (c = parseState->src[parseState->cur] != '>')) {
-					peff::String attributeName;
+					peff::String attributeName(parseState->allocator.get());
 					std::optional<peff::String> attributeValue;
 					WANDXML_RETURN_IF_EXCEPT(parseXMLAttribute(parseState, attributeName, attributeValue));
 
@@ -406,7 +406,7 @@ recurse:
 						{
 							size_t textLength = parseState->cur - 1 - parseState->regularElementIdxLastValidChar;
 							if (textLength) {
-								peff::String text;
+								peff::String text(parseState->allocator.get());
 								text.resize(textLength);
 								memcpy(text.data(), parseState->src + parseState->regularElementIdxLastValidChar, textLength);
 
@@ -463,7 +463,7 @@ recurse:
 						{
 							size_t textLength = parseState->cur - 1 - parseState->regularElementIdxLastValidChar;
 							if (textLength) {
-								peff::String text;
+								peff::String text(parseState->allocator.get());
 								text.resize(textLength);
 								memcpy(text.data(), parseState->src + parseState->regularElementIdxLastValidChar, textLength);
 
@@ -569,7 +569,7 @@ WANDXML_API InternalExceptionPointer parser::parseXMLElement(XMLNodeParseState *
 		textEnd: {
 			size_t textLength = parseState->cur - 1 - idxBeginning;
 			if (textLength) {
-				peff::String text;
+				peff::String text(parseState->allocator.get());
 				text.resize(textLength);
 				memcpy(text.data(), parseState->src + idxBeginning, textLength);
 

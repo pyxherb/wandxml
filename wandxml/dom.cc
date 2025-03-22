@@ -27,7 +27,7 @@ WANDXML_API void XMLRegularNode::dealloc() {
 
 	this->~XMLRegularNode();
 
-	allocator->release(this);
+	allocator->release(this, sizeof(XMLRegularNode), sizeof(std::max_align_t));
 }
 
 WANDXML_API XMLDeclarationNode::XMLDeclarationNode(peff::Alloc *allocator) : XMLNode(XMLNodeType::Declaration, allocator), name(allocator), attributes(allocator) {
@@ -52,7 +52,7 @@ WANDXML_API void XMLDeclarationNode::dealloc() {
 
 	this->~XMLDeclarationNode();
 
-	allocator->release(this);
+	allocator->release(this, sizeof(XMLDeclarationNode), sizeof(std::max_align_t));
 }
 
 WANDXML_API XMLDocumentNode::XMLDocumentNode(peff::Alloc *allocator) : XMLNode(XMLNodeType::Document, allocator), children(allocator) {
@@ -77,7 +77,7 @@ WANDXML_API void XMLDocumentNode::dealloc() {
 
 	this->~XMLDocumentNode();
 
-	allocator->release(this);
+	allocator->release(this, sizeof(XMLDocumentNode), sizeof(std::max_align_t));
 }
 
 WANDXML_API XMLTextNode::XMLTextNode(peff::Alloc *allocator) : XMLNode(XMLNodeType::Text, allocator), value(allocator) {
@@ -91,7 +91,7 @@ WANDXML_API void XMLTextNode::dealloc() {
 
 	this->~XMLTextNode();
 
-	allocator->release(this);
+	allocator->release(this, sizeof(XMLTextNode), sizeof(std::max_align_t));
 }
 
 WANDXML_API XMLTextNode* XMLTextNode::alloc(peff::Alloc* allocator) noexcept {

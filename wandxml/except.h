@@ -35,7 +35,7 @@ namespace wandxml {
 		WANDXML_API static SyntaxError *alloc(peff::Alloc *allocator, size_t off, const char *message) noexcept;
 	};
 
-	WANDXML_FORCEINLINE InternalExceptionPointer withOutOfMemoryErrorIfAllocFailed(InternalException *exceptionPtr) {
+	WANDXML_FORCEINLINE InternalExceptionPointer withOutOfMemoryErrorIfAllocFailed(InternalException *exceptionPtr) noexcept {
 		if (!exceptionPtr) {
 			return OutOfMemoryError::alloc();
 		}
